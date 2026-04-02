@@ -57,6 +57,8 @@ let targetEnd: number | null = null;
 type ModalType = 'skip' | 'reset' | null;
 const activeModal = ref<ModalType>(null);
 
+let isPlayingDing = false;
+
 function getDurationSeconds(type: PhaseType): number {
   if (type === 'work') return props.settings.workDuration * 60;
   if (type === 'shortBreak') return props.settings.shortBreakDuration * 60;
@@ -64,22 +66,26 @@ function getDurationSeconds(type: PhaseType): number {
 }
 
 async function playDing() {
-  if (!props.advancedSettings.enableSound) return;
+  if (!props.advancedSettings.enableSound || isPlayingDing) return;
+  isPlayingDing = true;
   const count = props.advancedSettings.soundRepeatCount;
   for (let i = 0; i < count; i++) {
     try {
       dingAudio.currentTime = 0;
       await dingAudio.play();
     } catch {
+      isPlayingDing = false;
       return;
     }
     if (i < count - 1) {
       await new Promise<void>(resolve => setTimeout(resolve, (dingAudio.duration || 1) * 1000 + 200));
     }
   }
+  isPlayingDing = false;
 }
 
 async function onPhaseComplete() {
+  pauseTimer(); // 先暫停計時器
   await playDing();
   advancePhase(props.advancedSettings.autoStartNextSession);
 }
