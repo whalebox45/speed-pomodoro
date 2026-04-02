@@ -8,7 +8,7 @@ import IconDelete from '~icons/material-symbols/delete-forever';
 import { reactive, ref, computed, onMounted, onUnmounted } from 'vue';
 import { defaultSettings, defaultAdvancedSettings } from './types';
 import type { TimerSettings, AdvancedSettings } from './types';
-import { BREAKPOINT_WIDE } from './constants';
+import { BREAKPOINT_WIDE, STORAGE_KEY_TIMER, STORAGE_KEY_ADVANCED } from './constants';
 
 import Modal from './Modal.vue';
 
@@ -90,7 +90,8 @@ function onModalConfirm() {
         emit('resetTimer');
         emit('switchView', 'timer');
     } else if (m === 'clean') {
-        localStorage.clear();
+        localStorage.removeItem(STORAGE_KEY_TIMER);
+        localStorage.removeItem(STORAGE_KEY_ADVANCED);
         Object.assign(editingSettings, defaultSettings);
         Object.assign(editingAdvanced, defaultAdvancedSettings);
         emit('saveSettings', { ...defaultSettings });
