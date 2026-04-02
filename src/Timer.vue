@@ -6,10 +6,14 @@ import IconPlayArrow from '~icons/material-symbols/play-arrow';
 import IconPause from '~icons/material-symbols/pause';
 import IconSkipNext from '~icons/material-symbols/skip-next';
 import Modal from './Modal.vue';
-import type { TimerSettings } from './types';
+import type { TimerSettings, AdvancedSettings } from './types';
+import dingUrl from './assets/kitchen_ding.mp3';
+
+const dingAudio = new Audio(dingUrl);
 
 const props = defineProps<{
   settings: TimerSettings;
+  advancedSettings: AdvancedSettings;
   resetTrigger?: number;
 }>();
 
@@ -64,6 +68,18 @@ function getDurationSeconds(type: PhaseType): number {
   return props.settings.longBreakDuration * 60;
 }
 
+async function playDing() {
+  if (!props.advancedSettings.enableSound) return;
+  const count = props.advancedSettings.soundRepeatCount;
+  for (let i = 0; i < count; i++) {
+    dingAudio.currentTime = 0;
+    await dingAudio.play();
+    if (i < count - 1) {
+      await new Promise<void>(resolve => setTimeout(resolve, (dingAudio.duration || 1) * 1000 + 200));
+    }
+  }
+}
+
 function startTimer() {
   if (intervalId !== null) return;
   isRunning.value = true;
@@ -72,8 +88,9 @@ function startTimer() {
     if (secondsLeft.value > 0) {
       secondsLeft.value--;
     } else {
-      // Time's up — auto-advance and keep running
-      advancePhase(true);
+      // Time's up — play sound then auto-advance based on settings
+      playDing();
+      advancePhase(props.advancedSettings.autoStartNextSession);
     }
   }, 1000);
 }

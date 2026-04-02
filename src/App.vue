@@ -2,11 +2,12 @@
 import Setting from './Setting.vue';
 import Timer from './Timer.vue';
 import { reactive, ref } from 'vue';
-import { defaultSettings } from './types';
-import type { TimerSettings } from './types';
+import { defaultSettings, defaultAdvancedSettings } from './types';
+import type { TimerSettings, AdvancedSettings } from './types';
 
 const currentView = ref<'timer' | 'setting'>('timer');
 const timerSettings = reactive<TimerSettings>({ ...defaultSettings });
+const advancedSettings = reactive<AdvancedSettings>({ ...defaultAdvancedSettings });
 const isTimerRunning = ref(false);
 const resetTrigger = ref(0);
 
@@ -21,6 +22,10 @@ function onTimerRunningChange(running: boolean) {
 function onResetTimer() {
   resetTrigger.value++;
 }
+
+function onUpdateAdvancedSettings(settings: AdvancedSettings) {
+  Object.assign(advancedSettings, settings);
+}
 </script>
 
 <template>
@@ -28,6 +33,7 @@ function onResetTimer() {
   <Timer
     v-show="currentView === 'timer'"
     :settings="timerSettings"
+    :advanced-settings="advancedSettings"
     :reset-trigger="resetTrigger"
     @switch-view="switchView"
     @timer-running-change="onTimerRunningChange"
@@ -35,8 +41,10 @@ function onResetTimer() {
   <Setting
     v-if="currentView === 'setting'"
     :settings="timerSettings"
+    :advanced-settings="advancedSettings"
     :is-timer-running="isTimerRunning"
     @switch-view="switchView"
     @reset-timer="onResetTimer"
+    @update-advanced-settings="onUpdateAdvancedSettings"
   />
 </template>

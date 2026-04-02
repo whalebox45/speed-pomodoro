@@ -11,3 +11,15 @@ export const defaultSettings: TimerSettings = {
   longBreakDuration: 15,
   sessionsBeforeLongBreak: 4,
 };
+
+export interface AdvancedSettings {
+  autoStartNextSession: boolean;
+  enableSound: boolean;
+  soundRepeatCount: number;
+}
+
+export const defaultAdvancedSettings: AdvancedSettings = {
+  autoStartNextSession: true,
+  enableSound: true,
+  soundRepeatCount: 1,
+};
